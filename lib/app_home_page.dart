@@ -1,5 +1,51 @@
 import 'package:flutter/material.dart';
 
+// Custom AppBar widget
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text('App Home Page'),
+    );
+  }
+}
+
+// Custom BottomNavigationBar widget
+class CustomBottomNavigationBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int)? onTap;
+
+  CustomBottomNavigationBar({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      onTap: onTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          label: 'Search',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
+    );
+  }
+}
+
 class AppHomePage extends StatelessWidget {
   final String token; // Define a variable to hold the token
   const AppHomePage({Key? key, required this.token}) : super(key: key); // Add the token parameter to the constructor
@@ -7,9 +53,7 @@ class AppHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('App Home Page'),
-      ),
+      appBar: CustomAppBar(), // Use the custom app bar
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -33,6 +77,10 @@ class AppHomePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 0, // Set the initial index
+        onTap: (index) {}, // Handle tap events
       ),
     );
   }
