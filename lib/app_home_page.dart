@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kuis_3/history_order.dart';
 
 // Custom AppBar widget
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -37,10 +38,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.search),
           label: 'Search',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
       ],
     );
   }
@@ -48,7 +46,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
 class AppHomePage extends StatelessWidget {
   final String token; // Define a variable to hold the token
-  const AppHomePage({Key? key, required this.token}) : super(key: key); // Add the token parameter to the constructor
+  const AppHomePage({Key? key, required this.token})
+      : super(key: key); // Add the token parameter to the constructor
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +70,8 @@ class AppHomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement logout logic here
-                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
               },
               child: Text('Logout'),
             ),
@@ -80,7 +80,15 @@ class AppHomePage extends StatelessWidget {
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: 0, // Set the initial index
-        onTap: (index) {}, // Handle tap events
+        onTap: (index) {
+          if (index == 2) {
+            // Navigate to HistoryPage when History is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HistoryPage()),
+            );
+          }
+        }, // Handle tap events
       ),
     );
   }
