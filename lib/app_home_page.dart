@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:kuis_3/history_order.dart';
 import 'package:http/http.dart' as http;
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -34,12 +35,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
+          icon: Icon(Icons.shopping_cart),
+          label: 'Cart',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: Icon(Icons.history),
+          label: 'History',
         ),
       ],
     );
@@ -356,8 +357,16 @@ class _AppHomePageState extends State<AppHomePage> {
         ),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: 0,
-        onTap: (index) {},
+        currentIndex: 0, // Set the initial index
+        onTap: (index) {
+          if (index == 2) {
+            // Navigate to HistoryPage when History is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HistoryPage(token : widget.token)),
+            );
+          }
+        }, // Handle tap events
       ),
     );
   }
