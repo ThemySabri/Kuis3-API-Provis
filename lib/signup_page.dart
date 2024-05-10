@@ -16,6 +16,7 @@ class SignUpPage extends StatelessWidget {
         Uri.parse(apiUrl),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Authentication': 'token'
         },
         body: jsonEncode(<String, String>{
           'username': username,
