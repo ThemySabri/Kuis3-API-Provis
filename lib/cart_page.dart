@@ -1,14 +1,58 @@
 import 'package:flutter/material.dart';
+import 'app_home_page.dart';
+import 'history_order.dart';
 
-void main() {
-  runApp(MyApp());
-}
+class CartPageApp extends StatelessWidget {
+  final String token;
 
-class MyApp extends StatelessWidget {
+  CartPageApp({required this.token});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CartPage(),
+      debugShowCheckedModeBanner: false,
+      home: CartPage(token: token),
+    );
+  }
+}
+
+class CartPage extends StatefulWidget {
+  final String token;
+
+  CartPage({required this.token});
+
+  @override
+  _CartPageState createState() => _CartPageState();
+}
+
+class CustomBottomNavigationBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int)? onTap;
+
+  CustomBottomNavigationBar({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      onTap: onTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_cart),
+          label: 'Cart',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.history),
+          label: 'History',
+        ),
+      ],
     );
   }
 }
@@ -26,11 +70,6 @@ class CartItem {
   });
 
   double get totalPrice => quantity * price;
-}
-
-class CartPage extends StatefulWidget {
-  @override
-  _CartPageState createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
@@ -75,49 +114,49 @@ class _CartPageState extends State<CartPage> {
         itemBuilder: (context, index) {
           var item = _cartItems[index];
           return Card(
-              margin: EdgeInsets.all(8.0),
-              child: ListTile(
-                title: Text(item.name),
-                subtitle: Text('Rp ${item.price.toStringAsFixed(2)}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () => _decrementQuantity(item),
-                    ),
-                    Text(item.quantity.toString()),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () => _incrementQuantity(item),
-                    ),
-                  ],
-                ),
-              ));
+            margin: EdgeInsets.all(8.0),
+            child: ListTile(
+              title: Text(item.name),
+              subtitle: Text('Rp ${item.price.toStringAsFixed(2)}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () => _decrementQuantity(item),
+                  ),
+                  Text(item.quantity.toString()),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () => _incrementQuantity(item),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: (int index) {
+        onTap: (index) {
           setState(() {
             _selectedIndex = index;
           });
-        },
+          if (index == 0) {
+            // Navigate to AppHomePage when Home is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AppHomePage(token: widget.token)),
+            );
+          }
+          else if (index == 2) {
+            // Navigate to HistoryPage when History is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HistoryPage(token: widget.token)),
+            );
+          }
+        }, // Handle tap events
       ),
       bottomSheet: SafeArea(
         child: Container(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_home_page.dart';
+import 'cart_page.dart';
 
 class HistoryPageApp extends StatelessWidget {
   final String token;
@@ -152,6 +153,13 @@ class _MyHomePageState extends State<MyHomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => AppHomePage(token: widget.token)),
+            );
+          }
+          else if (index == 1) {
+            // Navigate to AppHomePage when Cart is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CartPage(token: widget.token)),
             );
           }
         }, // Handle tap events
