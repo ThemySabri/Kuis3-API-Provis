@@ -1,15 +1,16 @@
 name: kuis_3
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: ">=3.3.3 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.1  # for making HTTP requests
+  http: ^1.2.1 # for making HTTP requests
+  flutter_secure_storage: ^5.0.2
 
 dev_dependencies:
   flutter_test:

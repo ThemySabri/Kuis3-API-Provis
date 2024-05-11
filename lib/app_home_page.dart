@@ -63,7 +63,6 @@ class AppHomePage extends StatefulWidget {
   _AppHomePageState createState() => _AppHomePageState();
 }
 
-
 class _AppHomePageState extends State<AppHomePage> {
   late String accessToken;
   late int userId; // Declare userId variable
@@ -113,7 +112,7 @@ class _AppHomePageState extends State<AppHomePage> {
         await fetchData();
         return;
       }
-      
+
       final response = await http.get(
         Uri.parse('http://146.190.109.66:8000/search_items/$keyword'),
         headers: {
@@ -238,11 +237,13 @@ class _AppHomePageState extends State<AppHomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (snapshot.connectionState == ConnectionState.waiting)
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting)
                                 Container(
                                   height: 200,
                                   color: Colors.grey[200],
-                                  child: Center(child: CircularProgressIndicator()),
+                                  child: Center(
+                                      child: CircularProgressIndicator()),
                                 )
                               else if (snapshot.hasError)
                                 Container(
@@ -271,17 +272,23 @@ class _AppHomePageState extends State<AppHomePage> {
                                         ),
                                       ),
                                       subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(itemWithQuantity.item['description'] ?? ''),
+                                          Text(itemWithQuantity
+                                                  .item['description'] ??
+                                              ''),
                                           SizedBox(height: 5),
                                           Row(
                                             children: [
                                               GestureDetector(
                                                 onTap: () {
                                                   setState(() {
-                                                    if (itemWithQuantity.quantity > 0) {
-                                                      itemWithQuantity.quantity -= 1;
+                                                    if (itemWithQuantity
+                                                            .quantity >
+                                                        0) {
+                                                      itemWithQuantity
+                                                          .quantity -= 1;
                                                     }
                                                   });
                                                 },
@@ -296,7 +303,8 @@ class _AppHomePageState extends State<AppHomePage> {
                                               ),
                                               SizedBox(width: 10),
                                               Text(
-                                                itemWithQuantity.quantity.toString(),
+                                                itemWithQuantity.quantity
+                                                    .toString(),
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
@@ -306,7 +314,8 @@ class _AppHomePageState extends State<AppHomePage> {
                                               GestureDetector(
                                                 onTap: () {
                                                   setState(() {
-                                                    itemWithQuantity.quantity += 1;
+                                                    itemWithQuantity.quantity +=
+                                                        1;
                                                   });
                                                 },
                                                 child: Container(
@@ -323,7 +332,10 @@ class _AppHomePageState extends State<AppHomePage> {
                                           SizedBox(height: 5),
                                           ElevatedButton(
                                             onPressed: () {
-                                              addToCart(itemWithQuantity.item['id'] as int, itemWithQuantity.quantity);
+                                              addToCart(
+                                                  itemWithQuantity.item['id']
+                                                      as int,
+                                                  itemWithQuantity.quantity);
                                             },
                                             child: Text('Add to Cart'),
                                           ),
@@ -371,7 +383,8 @@ class _AppHomePageState extends State<AppHomePage> {
             // Navigate to HistoryPage when History is tapped
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => HistoryPage(token : widget.token)),
+              MaterialPageRoute(
+                  builder: (context) => HistoryPage(token: widget.token)),
             );
           }
         }, // Handle tap events
