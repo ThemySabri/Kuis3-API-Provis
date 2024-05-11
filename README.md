@@ -12,7 +12,7 @@ Kami berjanji tidak berbuat curang maupun membantu orang lain berbuat curang.
 
 ## Deskripsi Program
 
-Program ini adalah sebuah aplikasi Flutter yang dirancang untuk mengelola status pesanan pengguna. Aplikasi ini memungkinkan pengguna untuk melakukan berbagai tindakan terkait status pesanan mereka, seperti melakukan pembayaran, mengonfirmasi penerimaan atau penolakan pesanan oleh penjual, serta mengonfirmasi penerimaan pesanan oleh pengguna.
+Aplikasi Flutter ini dibuat sebagai bagian dari tugas Provis kuis API pada bulan Mei 2024. Aplikasi ini terhubung dengan web API FastAPI dan menyediakan fitur autentikasi menggunakan token OAuth. Setelah pengguna berhasil login, mereka akan langsung diarahkan ke halaman utama yang menampilkan daftar makanan yang tersedia untuk dibeli. Pengguna dapat menambahkan makanan ke keranjang belanja, melihat isi keranjang belanja, dan melakukan proses checkout untuk pembayaran.
 
 ## Alur Program
 
@@ -23,3 +23,8 @@ Program ini adalah sebuah aplikasi Flutter yang dirancang untuk mengelola status
 5. Jika status pesanan berubah menjadi "terima_bayar", tombol "Set Penjual Terima" dan "Set Penjual Tolak" akan muncul. Pengguna dapat menekan salah satu tombol tersebut untuk mengonfirmasi status pesanan oleh penjual.
 6. Jika status pesanan berubah menjadi "diantar", tombol "Set Diantar" akan muncul. Pengguna dapat menekan tombol tersebut untuk mengonfirmasi bahwa pesanan telah diantar.
 7. Jika status pesanan berubah menjadi "diterima", tombol "Pesanan Diterima" akan muncul. Pengguna dapat menekan tombol tersebut untuk mengonfirmasi bahwa pesanan telah diterima.
+
+## Kontributor
+
+- Ahmad Taufiq Hidayat ([@artefiq](https://github.com/artefiq))
+- Themy Sabri Syuhada ([@ThemySabri](https://github.com/ThemySabri))
