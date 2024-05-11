@@ -77,7 +77,6 @@ class CartItem {
   double get totalPrice => quantity * price;
 }
 
-
 class _CartPageState extends State<CartPage> {
   int _selectedIndex = 1; // Initialize _selectedIndex here
 
@@ -105,7 +104,8 @@ class _CartPageState extends State<CartPage> {
       }
 
       final accessToken = tokenData['access_token'] as String?;
-      final userId = tokenData['user_id']?.toString(); // Convert user_id to String
+      final userId =
+          tokenData['user_id']?.toString(); // Convert user_id to String
 
       if (accessToken == null || userId == null) {
         print('Access token or user ID is null');
@@ -122,7 +122,8 @@ class _CartPageState extends State<CartPage> {
 
       if (allItemsResponse.statusCode == 200) {
         final List<dynamic> allItemsData = jsonDecode(allItemsResponse.body);
-        final Map<int, dynamic> itemMap = {}; // Map to store item data by item_id
+        final Map<int, dynamic> itemMap =
+            {}; // Map to store item data by item_id
 
         // Store item data in a map by item_id
         for (final itemData in allItemsData) {
@@ -153,7 +154,8 @@ class _CartPageState extends State<CartPage> {
               final price = itemDetails['price']?.toDouble() ?? 0.0;
               final quantity = itemData['quantity'] as int;
               final imageUrl = await fetchItemImage(itemId, accessToken);
-              final cartId = itemData['id'] as int; // Extract cartId from cart data
+              final cartId =
+                  itemData['id'] as int; // Extract cartId from cart data
 
               if (name != null) {
                 cartItems.add(CartItem(
@@ -195,7 +197,8 @@ class _CartPageState extends State<CartPage> {
         // Return the image data as a base64 string
         return base64Encode(response.bodyBytes);
       } else {
-        print('Failed to fetch item image for item $itemId: ${response.statusCode}');
+        print(
+            'Failed to fetch item image for item $itemId: ${response.statusCode}');
         return null;
       }
     } catch (error) {
@@ -220,7 +223,8 @@ class _CartPageState extends State<CartPage> {
       }
 
       final deleteResponse = await http.delete(
-        Uri.parse('http://146.190.109.66:8000/clear_whole_carts_by_userid/$userId'), // Use the new endpoint
+        Uri.parse(
+            'http://146.190.109.66:8000/clear_whole_carts_by_userid/$userId'), // Use the new endpoint
         headers: {
           'Authorization': 'Bearer $accessToken',
         },
@@ -228,10 +232,12 @@ class _CartPageState extends State<CartPage> {
 
       if (deleteResponse.statusCode == 200) {
         setState(() {
-          _cartItems.clear(); // Clear the _cartItems list after successful deletion
+          _cartItems
+              .clear(); // Clear the _cartItems list after successful deletion
         });
       } else {
-        print('Failed to delete all items from cart: ${deleteResponse.statusCode}');
+        print(
+            'Failed to delete all items from cart: ${deleteResponse.statusCode}');
         // Handle error or show message to user
       }
     } catch (error) {
@@ -241,272 +247,280 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _removeItem(CartItem item) async {
-  try {
-    final tokenData = jsonDecode(widget.token!);
-    final accessToken = tokenData['access_token'] as String?;
+    try {
+      final tokenData = jsonDecode(widget.token!);
+      final accessToken = tokenData['access_token'] as String?;
 
-    if (accessToken == null) {
-      print('Access token is null');
-      return;
-    }
+      if (accessToken == null) {
+        print('Access token is null');
+        return;
+      }
 
-    final deleteResponse = await http.delete(
-      Uri.parse('http://146.190.109.66:8000/carts/${item.cartId}'), // Use item.cartId
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (deleteResponse.statusCode == 200) {
-      setState(() {
-        _cartItems.remove(item);
-      });
-    } else {
-      print('Failed to delete item from cart: ${deleteResponse.statusCode}');
-      // Handle error or show message to user
-    }
-  } catch (error) {
-    print('Error removing item from cart: $error');
-    // Handle error or show message to user
-  }
-}
-
-void _checkout() async {
-  try {
-    final tokenData = jsonDecode(widget.token!);
-    final accessToken = tokenData['access_token'] as String?;
-    final userId = tokenData['user_id']?.toString(); // Get user_id from token
-
-    if (accessToken == null || userId == null) {
-      print('Access token or user ID is null');
-      return;
-    }
-
-    final checkoutResponse = await http.post(
-      Uri.parse('http://146.190.109.66:8000/set_status_harap_bayar/$userId'), // Use the new endpoint
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (checkoutResponse.statusCode == 200) {
-      // Handle successful checkout, e.g., navigate to a confirmation page
-      // Clear the cart items list after successful checkout
-      setState(() {
-        _cartItems.clear();
-      });
-      // Show the payment popup
-      _showPaymentDialog();
-    } else {
-      print('Failed to checkout: ${checkoutResponse.statusCode}');
-      // Handle error or show message to user
-    }
-  } catch (error) {
-    print('Error during checkout: $error');
-    // Handle error or show message to user
-  }
-}
-
-void _showPaymentDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Checkout Successful'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Total Items: ${getTotalItems()}'),
-            Text('Total Price: Rp ${_cartItems.fold(0.0, (double previousValue, item) => previousValue + item.totalPrice).toStringAsFixed(0)}'),
-          ],
-        ),
-        actions: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              _makePayment(context); // Trigger the payment process
-            },
-            child: Text('Pay'),
-          ),
-        ],
+      final deleteResponse = await http.delete(
+        Uri.parse(
+            'http://146.190.109.66:8000/carts/${item.cartId}'), // Use item.cartId
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
       );
-    },
-  );
-}
 
-void _makePayment(BuildContext context) async {
-  try {
-    final tokenData = jsonDecode(widget.token!);
-    final accessToken = tokenData['access_token'] as String?;
-    final userId = tokenData['user_id']?.toString(); // Get user_id from token
-
-    if (accessToken == null || userId == null) {
-      print('Access token or user ID is null');
-      return;
-    }
-
-    final paymentResponse = await http.post(
-      Uri.parse('http://146.190.109.66:8000/pembayaran/$userId'), // Use the new endpoint
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (paymentResponse.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Payment Successful'),
-          duration: Duration(seconds: 2), // Adjust the duration as needed
-        ),
-      );
-      // Handle successful payment
-      Navigator.of(context).pop(); // Close the current screen
-    } else {
-      print('Failed to make payment: ${paymentResponse.statusCode}');
+      if (deleteResponse.statusCode == 200) {
+        setState(() {
+          _cartItems.remove(item);
+        });
+      } else {
+        print('Failed to delete item from cart: ${deleteResponse.statusCode}');
+        // Handle error or show message to user
+      }
+    } catch (error) {
+      print('Error removing item from cart: $error');
       // Handle error or show message to user
     }
-  } catch (error) {
-    print('Error making payment: $error');
-    // Handle error or show message to user
   }
-}
 
-  @override
-Widget build(BuildContext context) {
-  // Calculate total items
-  int totalItems = getTotalItems();
+  void _checkout() async {
+    try {
+      final tokenData = jsonDecode(widget.token!);
+      final accessToken = tokenData['access_token'] as String?;
+      final userId = tokenData['user_id']?.toString(); // Get user_id from token
 
-  // Calculate total price
-  double total = _cartItems.fold(0.0, (double previousValue, item) => previousValue + item.totalPrice);
+      if (accessToken == null || userId == null) {
+        print('Access token or user ID is null');
+        return;
+      }
 
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Keranjang'),
-    ),
-    body: Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: _cartItems.length,
-            itemBuilder: (context, index) {
-              var item = _cartItems[index];
-              return Card(
-                margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-                child: ListTile(
-                  leading: SizedBox(
-                    width: 50, // Adjust the width as needed
-                    child: item.imageUrl != null
-                        ? Image.memory(
-                            base64Decode(item.imageUrl!),
-                            fit: BoxFit.cover, // Adjust this as needed
-                          )
-                        : Container(
-                            width: 50,
-                            height: 50,
-                            color: Colors.grey, // Placeholder color
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          ),
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.name),
-                      Text(
-                        'Qty: ${item.quantity}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
-                      ), // Display quantity
-                    ],
-                  ),
-                  subtitle: Text(
-                    'Rp ${item.price.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        color: Color.fromARGB(255, 180, 0, 0),
-                        onPressed: () => _removeItem(item),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        Container(
-          color: Colors.white,
-          padding: EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      final checkoutResponse = await http.post(
+        Uri.parse(
+            'http://146.190.109.66:8000/set_status_harap_bayar/$userId'), // Use the new endpoint
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (checkoutResponse.statusCode == 200) {
+        // Handle successful checkout, e.g., navigate to a confirmation page
+        // Clear the cart items list after successful checkout
+        setState(() {
+          _cartItems.clear();
+        });
+        // Show the payment popup
+        _showPaymentDialog();
+      } else {
+        print('Failed to checkout: ${checkoutResponse.statusCode}');
+        // Handle error or show message to user
+      }
+    } catch (error) {
+      print('Error during checkout: $error');
+      // Handle error or show message to user
+    }
+  }
+
+  void _showPaymentDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Checkout Successful'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Total Items: $totalItems',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 4), // Penambahan jarak antar teks
-                  Text(
-                    'Total: Rp ${total.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _deleteAllItems(); // Call function to delete all items
-                },
-                child: Text('Delete All'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _checkout(); // Call the checkout function
-                },
-                child: Text('Checkout'),
-              ),
+              Text('Total Items: ${getTotalItems()}'),
+              Text(
+                  'Total Price: Rp ${_cartItems.fold(0.0, (double previousValue, item) => previousValue + item.totalPrice).toStringAsFixed(0)}'),
             ],
           ),
-        ),
-      ],
-    ),
-    bottomNavigationBar: CustomBottomNavigationBar(
-      currentIndex: _selectedIndex,
-      onTap: (index) {
-        setState(() {
-          _selectedIndex = index;
-        });
-        if (index == 0) {
-          // Navigate to AppHomePage when Home is tapped
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AppHomePage(token: widget.token)),
-          );
-        } else if (index == 2) {
-          // Navigate to HistoryPage when History is tapped
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => HistoryPage(token: widget.token)),
-          );
-        }
-      }, // Handle tap events
-    ),
-  );
-}
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                _makePayment(context); // Trigger the payment process
+              },
+              child: Text('Pay'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _makePayment(BuildContext context) async {
+    try {
+      final tokenData = jsonDecode(widget.token!);
+      final accessToken = tokenData['access_token'] as String?;
+      final userId = tokenData['user_id']?.toString(); // Get user_id from token
+
+      if (accessToken == null || userId == null) {
+        print('Access token or user ID is null');
+        return;
+      }
+
+      final paymentResponse = await http.post(
+        Uri.parse(
+            'http://146.190.109.66:8000/pembayaran/$userId'), // Use the new endpoint
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (paymentResponse.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Payment Successful'),
+            duration: Duration(seconds: 2), // Adjust the duration as needed
+          ),
+        );
+        // Handle successful payment
+        Navigator.of(context).pop(); // Close the current screen
+      } else {
+        print('Failed to make payment: ${paymentResponse.statusCode}');
+        // Handle error or show message to user
+      }
+    } catch (error) {
+      print('Error making payment: $error');
+      // Handle error or show message to user
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Calculate total items
+    int totalItems = getTotalItems();
+
+    // Calculate total price
+    double total = _cartItems.fold(
+        0.0, (double previousValue, item) => previousValue + item.totalPrice);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Keranjang'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _cartItems.length,
+              itemBuilder: (context, index) {
+                var item = _cartItems[index];
+                return Card(
+                  margin:
+                      EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                  child: ListTile(
+                    leading: SizedBox(
+                      width: 50, // Adjust the width as needed
+                      child: item.imageUrl != null
+                          ? Image.memory(
+                              base64Decode(item.imageUrl!),
+                              fit: BoxFit.cover, // Adjust this as needed
+                            )
+                          : Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey, // Placeholder color
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                    ),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.name),
+                        Text(
+                          'Qty: ${item.quantity}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ), // Display quantity
+                      ],
+                    ),
+                    subtitle: Text(
+                      'Rp ${item.price.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          color: Color.fromARGB(255, 180, 0, 0),
+                          onPressed: () => _removeItem(item),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Items: $totalItems',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    SizedBox(height: 4), // Penambahan jarak antar teks
+                    Text(
+                      'Total: Rp ${total.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _deleteAllItems(); // Call function to delete all items
+                  },
+                  child: Text('Delete All'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _checkout(); // Call the checkout function
+                  },
+                  child: Text('Checkout'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          if (index == 0) {
+            // Navigate to AppHomePage when Home is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AppHomePage(token: widget.token)),
+            );
+          } else if (index == 2) {
+            // Navigate to HistoryPage when History is tapped
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HistoryPage(token: widget.token)),
+            );
+          }
+        }, // Handle tap events
+      ),
+    );
+  }
 }
