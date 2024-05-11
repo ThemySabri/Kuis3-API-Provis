@@ -40,8 +40,8 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Cart',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'History',
+          icon: Icon(Icons.list_alt),
+          label: 'On-going Order',
         ),
       ],
     );
@@ -376,10 +376,10 @@ class _AppHomePageState extends State<AppHomePage> {
             // Navigate to HistoryPage when History is tapped
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CartPage(token : widget.token)),
+              MaterialPageRoute(
+                  builder: (context) => CartPage(token: widget.token)),
             );
-          }
-          else if (index == 2) {
+          } else if (index == 2) {
             // Navigate to HistoryPage when History is tapped
             Navigator.push(
               context,

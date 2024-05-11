@@ -1,8 +1,13 @@
-import 'package:flutter/material.dart';
-import 'app_home_page.dart';
-import 'cart_page.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(HistoryPageApp(
+      token: '{"access_token": "your_access_token", "user_id": 123}'));
+}
 
 class HistoryPageApp extends StatelessWidget {
   final String token;
@@ -18,61 +23,20 @@ class HistoryPageApp extends StatelessWidget {
   }
 }
 
-class HistoryPage extends StatelessWidget {
+class HistoryPage extends StatefulWidget {
   final String token;
 
   HistoryPage({required this.token});
 
   @override
-  Widget build(BuildContext context) {
-    return MyHomePage(token: token);
-  }
+  _HistoryPageState createState() => _HistoryPageState();
 }
 
-class CustomBottomNavigationBar extends StatelessWidget {
-  final int currentIndex;
-  final Function(int)? onTap;
-
-  CustomBottomNavigationBar({
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: onTap,
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_cart),
-          label: 'Cart',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'History',
-        ),
-      ],
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  final String token;
-
-  MyHomePage({required this.token});
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _HistoryPageState extends State<HistoryPage> {
   late String accessToken;
   late int userId;
+  late String? status;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -80,124 +44,241 @@ class _MyHomePageState extends State<MyHomePage> {
     final tokenData = jsonDecode(widget.token);
     accessToken = tokenData['access_token'];
     userId = tokenData['user_id'];
-    fetchData();
+    fetchUserStatus(userId, accessToken);
   }
 
-  void fetchData() {
-    // Asumsi fetchData melakukan sesuatu dengan accessToken dan userId
-    print('Access Token: $accessToken');
-    print('User ID: $userId');
+  Future<void> fetchUserStatus(int userId, String token) async {
+    try {
+      final url = Uri.parse('http://146.190.109.66:8000/get_status/$userId');
+      final response = await http.get(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final userStatus = responseData['status']['status'];
+        setState(() {
+          status = userStatus;
+        });
+      } else {
+        throw Exception('Failed to load status');
+      }
+    } catch (e) {
+      log('Failed to fetch user status: $e');
+    }
   }
 
-  int _selectedIndex = 2; // default to history tab
+  Future<void> bayar(int userId, String token) async {
+    try {
+      final url = Uri.parse('http://146.190.109.66:8000/pembayaran/$userId');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-  List<Map<String, dynamic>> _orders = [
-    {
-      'id': 1,
-      'date': 'May 10, 2024',
-      'items': ['Pizza', 'Burger', 'Fries'],
-      'total': 20,
-    },
-    {
-      'id': 2,
-      'date': 'May 9, 2024',
-      'items': ['Sushi', 'Ramen', 'Salad'],
-      'total': 30,
-    },
-    {
-      'id': 3,
-      'date': 'May 8, 2024',
-      'items': ['Taco', 'Burrito', 'Guacamole'],
-      'total': 15,
-    },
-    {
-      'id': 4,
-      'date': 'May 7, 2024',
-      'items': ['Pasta', 'Garlic Bread', 'Salad'],
-      'total': 25,
-    },
-    {
-      'id': 5,
-      'date': 'May 6, 2024',
-      'items': ['Steak', 'Mashed Potatoes', 'Green Beans'],
-      'total': 40,
-    },
-  ];
+      if (response.statusCode == 200) {
+        log('Pembayaran berhasil');
+        // Refresh status after updating
+        fetchUserStatus(userId, token);
+      } else {
+        throw Exception('Pembayaran gagal');
+      }
+    } catch (e) {
+      log('Pembayaran gagal: $e');
+    }
+  }
+
+  Future<void> setStatusPenjualTerima(int userId, String token) async {
+    try {
+      final url = Uri.parse(
+          'http://146.190.109.66:8000/set_status_penjual_terima/$userId');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        log('Status penjual diterima berhasil diatur');
+        // Refresh status after updating
+        fetchUserStatus(userId, token);
+      } else {
+        throw Exception('Gagal mengatur status penjual diterima');
+      }
+    } catch (e) {
+      log('Gagal mengatur status penjual diterima: $e');
+    }
+  }
+
+  Future<void> setStatusPenjualTolak(int userId, String token) async {
+    try {
+      final url = Uri.parse(
+          'http://146.190.109.66:8000/set_status_penjual_tolak/$userId');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        log('Status penjual ditolak berhasil diatur');
+        // Refresh status after updating
+        fetchUserStatus(userId, token);
+      } else {
+        throw Exception('Gagal mengatur status penjual ditolak');
+      }
+    } catch (e) {
+      log('Gagal mengatur status penjual ditolak: $e');
+    }
+  }
+
+  Future<void> setStatusDiantar(int userId, String token) async {
+    try {
+      final url =
+          Uri.parse('http://146.190.109.66:8000/set_status_diantar/$userId');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        log('Status diantar berhasil diatur');
+        // Refresh status after updating
+        fetchUserStatus(userId, token);
+      } else {
+        throw Exception('Gagal mengatur status diantar');
+      }
+    } catch (e) {
+      log('Gagal mengatur status diantar: $e');
+    }
+  }
+
+  Future<void> setStatusDiterima(int userId, String token) async {
+    try {
+      final url =
+          Uri.parse('http://146.190.109.66:8000/set_status_diterima/$userId');
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        log('Status diterima berhasil diatur');
+        // Refresh status after updating
+        fetchUserStatus(userId, token);
+      } else {
+        throw Exception('Gagal mengatur status diterima');
+      }
+    } catch (e) {
+      log('Gagal mengatur status diterima: $e');
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    // Handle navigation here based on index
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('History'),
+        title: Text('On-Going Orders'),
       ),
-
-      body: _selectedIndex == 2
-          ? ListView.builder(
-              itemCount: _orders.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 5,
-                    child: ListTile(
-                      leading: Icon(Icons.fastfood),
-                      title: Text('Order #${_orders[index]['id']}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text('Date: ${_orders[index]['date']}'),
-                          Text(
-                              'Items: ${(_orders[index]['items'] as List).join(', ')}'),
-                          Text('Total: \$${_orders[index]['total']}'),
-                        ],
-                      ),
-                      onTap: () {
-                        // Implement onTap logic if needed
-                      },
-                    ),
-                  ),
-                );
+      body: Center(
+        child: status == null
+            ? CircularProgressIndicator()
+            : Text('User Status: $status'),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'On-going Order',
+          ),
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          if (status == 'belum_bayar')
+            FloatingActionButton.extended(
+              onPressed: () {
+                bayar(userId, accessToken);
               },
-            )
-          : SizedBox(), // replaced the Center widget with SizedBox
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: 2, // Set the initial index
-        onTap: (index) {
-          if (index == 0) {
-            // Navigate to AppHomePage when Cart is tapped
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AppHomePage(token: widget.token)),
-            );
-          } else if (index == 1) {
-            // Navigate to AppHomePage when Cart is tapped
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CartPage(token: widget.token)),
-            );
-          }
-        }, // Handle tap events
+              label: Text('Bayar'),
+              icon: Icon(Icons.payment),
+            ),
+          SizedBox(height: 16),
+          if (status == 'terima_bayar')
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FloatingActionButton.extended(
+                  onPressed: () {
+                    setStatusPenjualTerima(userId, accessToken);
+                  },
+                  label: Text('Set Penjual Terima'),
+                  icon: Icon(Icons.check),
+                ),
+                SizedBox(width: 16),
+                FloatingActionButton.extended(
+                  onPressed: () {
+                    setStatusPenjualTolak(userId, accessToken);
+                  },
+                  label: Text('Set Penjual Tolak'),
+                  icon: Icon(Icons.close),
+                ),
+                SizedBox(width: 16),
+                FloatingActionButton.extended(
+                  onPressed: () {
+                    setStatusDiantar(userId, accessToken);
+                  },
+                  label: Text('Set Diantar'),
+                  icon: Icon(Icons.local_shipping),
+                ),
+              ],
+            ),
+          SizedBox(height: 16),
+          if (status == 'diantar')
+            FloatingActionButton.extended(
+              onPressed: () {
+                setStatusDiterima(userId, accessToken);
+              },
+              label: Text('Pesanan Diterima'),
+              icon: Icon(Icons.thumb_up),
+            ),
+        ],
       ),
     );
-  }
-}
-
-class UserSession {
-  static final _storage = FlutterSecureStorage();
-
-  static Future<void> storeToken(String token) async {
-    await _storage.write(key: 'token', value: token);
-  }
-
-  static Future<String?> getToken() async {
-    return await _storage.read(key: 'token');
   }
 }
